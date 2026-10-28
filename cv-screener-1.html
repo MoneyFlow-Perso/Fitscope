@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CV Screener</title>
+
+
+
+
+
+
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--tx:#1d2433;--mu:#667;--ac:#3b5bdb;--bd:#dde1ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#14161d;--card:#1e222c;--tx:#e8eaf2;--mu:#9aa;--ac:#7c93ff;--bd:#2f3544}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:18px 16px 4px;max-width:960px;margin:auto}h1{margin:0;font-size:22px}header p{margin:2px 0 0;color:var(--mu);font-size:13px}
+nav{display:flex;gap:6px;max-width:960px;margin:10px auto;padding:0 16px;overflow-x:auto}
+nav button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:20px;cursor:pointer;white-space:nowrap;font-size:14px}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:960px;margin:auto;padding:0 16px 40px}.pg{display:none}.pg.on{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+h2{font-size:16px;margin:0 0 8px}textarea,input,select{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:9px;font:inherit}
+textarea{min-height:200px;resize:vertical}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font:inherit;margin:6px 6px 0 0}.btn.s{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{width:auto}
+.score{font-size:54px;font-weight:700;line-height:1}.bar{height:10px;background:var(--bd);border-radius:6px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:var(--ac)}
+.chip{display:inline-block;padding:2px 9px;border-radius:12px;margin:2px;font-size:12.5px}.ok{background:#d3f9d8;color:#146c2e}.no{background:#ffe3e3;color:#a61e1e}
+.mu{color:var(--mu);font-size:13px}.item{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--bd)}
+.tp{display:flex;gap:8px;flex-wrap:wrap}.tp label{border:2px solid var(--bd);border-radius:10px;padding:8px 12px;cursor:pointer}.tp input{display:none}.tp label:has(input:checked){border-color:var(--ac);background:var(--bg)}
+#paper{background:#fff;color:#111;padding:28px;margin-top:10px;border:1px solid var(--bd);width:100%;overflow-x:auto}
+#paper{--f:Georgia,serif;--c:#222;font-family:var(--f);font-size:12.5px;line-height:1.45}
+#paper h1{font-size:25px;margin:0;color:var(--c)}#paper .ct{font-size:12px;color:#444;margin:3px 0 8px}
+#paper h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--c);margin:12px 0 4px;border-bottom:1.5px solid var(--c)}
+#paper p{margin:2px 0}#paper b{background:#fff6bf}
+#paper.modern{--f:system-ui,Arial,sans-serif;--c:#2f4fd0}#paper.modern h3{border:0;border-left:4px solid var(--c);padding-left:8px}
+#paper.minimal{--f:system-ui,Arial,sans-serif;--c:#555}#paper.minimal h3{border:0;font-weight:500}#paper.minimal h1{font-weight:300}
+#paper.exec{--f:Georgia,serif;--c:#7a1f2b}#paper.exec .hd{background:var(--c);color:#fff;padding:14px;margin:-28px -28px 8px}#paper.exec .hd h1,#paper.exec .hd .ct{color:#fff}
+#paper.compact{--f:Arial,sans-serif;--c:#0b6e4f;font-size:11px;line-height:1.3}#paper.compact h3{border:0;background:#e6f4ef;padding:2px 6px}
+#paper.nob b{background:none}
+.btn.ai{background:linear-gradient(135deg,#8b5cf6,#3b5bdb);border:0;color:#fff;font-weight:600}.btn.ai:active{transform:scale(.97)}
+</style></head><body>
+<header><h1>CV Screener</h1><p>Match a CV to a job description, rate it, and build a tailored resume (PDF + DOCX).</p></header>
+<nav id="nav"></nav>
+<main>
+<section class="pg on" id="p0">
+ <div class="grid">
+  <div class="card"><h2>1. Job description</h2><textarea id="jd" placeholder="Paste the job description, or load a file / screenshot below"></textarea>
+   <div class="row"><input type="file" id="jf" multiple accept=".txt,.md,.docx,.pdf,image/*"><button class="btn s" onclick="saveJD()">Save JD</button><button class="btn s" onclick="clr('jd')">Clear</button><button class="btn ai" onclick="verify('jd')">✨ Smart Scan</button><button class="btn s" onclick="cleanBox('jd')">🧹 Clean</button></div><div class="mu" id="jst"></div></div>
+  <div class="card"><h2>2. Resume / CV</h2><textarea id="cv" placeholder="Paste resume text, or load a file / screenshot below"></textarea>
+   <div class="row"><input type="file" id="cf" multiple accept=".txt,.md,.docx,.pdf,image/*"><button class="btn s" onclick="saveCV()">Save CV</button><button class="btn s" onclick="clr('cv')">Clear</button><button class="btn ai" onclick="verify('cv')">✨ Smart Scan</button><button class="btn s" onclick="cleanBox('cv')">🧹 Clean</button></div><div class="mu" id="cst"></div></div>
+ </div>
+ <button class="btn" onclick="screen()">Screen &amp; rate →</button><button class="btn s" onclick="clr('jd');clr('cv')">Clear both</button>
+ <p class="mu">For each box, either type/paste the text or choose file(s). If a file is chosen, typing is optional, and the other way round. Supported: PDF (including scanned), DOCX, TXT and JPEG/PNG screenshots (several allowed). Claude reads the files and does the matching.</p>
+</section>
+<section class="pg" id="p1"><div class="card" id="res"><p class="mu">Run a screening first.</p></div></section>
+<section class="pg" id="p2">
+ <div class="card" id="gapcard"><h2>1. Fill the gaps <span class="mu">(optional)</span></h2>
+  <p class="mu">The AI finds what the job asks for that your CV does not show and drafts one line for each. Tap <b>Yes</b> only if it is true for you (edit the text and replace any [X] with your real detail). Tap <b>No</b> to skip it.</p>
+  <div class="row"><button class="btn ai" onclick="gapFind()" id="bgap">🧩 Find my gaps</button><button class="btn s" onclick="gapClear()">Clear gaps</button></div>
+  <div class="mu" id="gst"></div><div id="gaps"></div></div>
+ <div class="card"><h2>2. Choose a format and build</h2><div class="tp" id="tp"></div>
+  <div class="row"><button class="btn" onclick="tailor()">Build tailored resume (AI)</button><button class="btn s" onclick="tailorLocal(false)">Quick build (no AI)</button><button class="btn s" onclick="verifyRes()">🧪 Fact-check my resume</button></div>
+  <p class="mu">Nothing is invented: the tool only reorders and highlights what your CV already says. Claude rewrites without adding facts. Edit freely below.</p><div id="cmp"></div></div>
+ <div class="grid"><div class="card"><h2>Resume text (editable)</h2><textarea id="rt" style="min-height:320px" oninput="draw()"></textarea>
+  <p class="mu">First line = name; next lines = contact; then headings like SUMMARY, EXPERIENCE, EDUCATION, SKILLS.</p></div>
+ <div class="card"><div class="row"><h2 style="margin:0">Preview</h2><label class="mu row"><input type="checkbox" id="hl" checked onchange="draw()" style="width:auto"> highlight matches</label></div>
+  <div class="row"><button class="btn" onclick="pdf()">Download PDF</button><button class="btn" onclick="docx()">Download DOCX</button><button class="btn s" onclick="saveRes()">Save this CV</button></div>
+  <div id="paper"></div></div></div>
+</section>
+<section class="pg" id="p3">
+ <div class="card" id="notescard"><h2>📝 Notes</h2>
+  <input id="nt" placeholder="Title (optional)">
+  <textarea id="nb" style="min-height:90px;margin-top:8px" placeholder="Write a note to keep for later: interview tips, company details, things to fix in your CV..."></textarea>
+  <div class="row"><button class="btn" id="nsv" onclick="noteSave()">Save note</button><button class="btn s" id="ncl" onclick="noteCancel()" style="display:none">Cancel edit</button></div>
+  <input id="ns" placeholder="Search notes" oninput="notesDraw()" style="margin-top:10px">
+  <div id="nl"></div></div>
+ <div class="card"><h2>Saved CVs</h2><div id="l_cv"></div></div>
+ <div class="card"><h2>Saved job descriptions</h2><div id="l_jd"></div></div>
+ <div class="card"><h2>Saved CV formats</h2><div class="row"><input id="fn" placeholder="Format name (e.g. My modern blue)"><button class="btn s" onclick="saveFmt()">Save current format</button></div><div id="l_fm"></div>
+  <p class="mu">Saved data stays in this browser only.</p></div>
+</section>
+<section class="pg" id="p4">
+ <div class="card"><h2>Job post screener</h2><p class="mu">Paste a job circular or post, or load a file / screenshot. It looks for scam warning signs and pulls out the key details. Leave the box empty to use the job description from the Input tab.</p>
+  <textarea id="pt" placeholder="Paste the job circular or post here"></textarea>
+  <div class="row" style="margin-top:8px"><input type="file" id="pf" multiple accept=".txt,.md,.docx,.pdf,image/*"></div><div class="mu" id="pst"></div>
+  <input id="pu" placeholder="Where did you find it? (optional: site, page or link)" style="margin-top:8px">
+  <div class="row"><button class="btn" onclick="checkPost()">Screen this post</button><button class="btn s" onclick="postToJD()">Use as job description</button><button class="btn s" onclick="clr('pt')">Clear</button><button class="btn ai" onclick="verify('pt')">✨ Smart Scan</button><button class="btn s" onclick="cleanBox('pt')">🧹 Clean</button></div></div>
+ <div class="card" id="pr" style="display:none"></div>
+</section>
+</main>
+<script>
+window.OFFLINE=typeof claude==='undefined';addEventListener('load',()=>{if(typeof claude==='undefined'){window.claude={use:async()=>null};document.querySelector('header').insertAdjacentHTML('beforeend','<p class=mu style="color:#e03131">Offline copy: Claude AI and the AI match are unavailable. Open the app link inside claude.ai for the full AI version. Here you get keyword matching, text/PDF/DOCX reading and image OCR (needs internet).</p>')}});
+const $=i=>document.getElementById(i),T={classic:'Classic',modern:'Modern',minimal:'Minimal',exec:'Executive',compact:'Compact'};
+let tpl='classic',kw=[];
+['Input','Match result','Build resume','Saved','Job post screener'].forEach((n,i)=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>go(i);b.id='n'+i;$('nav').append(b)});
+function go(i){document.querySelectorAll('.pg').forEach((p,j)=>p.classList.toggle('on',i==j));document.querySelectorAll('nav button').forEach((b,j)=>b.classList.toggle('on',i==j));if(i==3){lists();notesDraw()}}go(0);
+$('tp').innerHTML=Object.entries(T).map(([k,v])=>`<label><input type=radio name=t value=${k} ${k=='classic'?'checked':''}>${v}</label>`).join('');
+$('tp').onchange=e=>{tpl=e.target.value;draw()};
+const store={get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){alert('Could not save in this browser.');return false}}};
+async function readFile(f,ta,st){if(!f)return;st.textContent='Reading '+f.name+'…';try{let t='';const n=f.name.toLowerCase();
+ if(f.type.startsWith('image/')){const s=await claude.use('sample');if(!s)throw'Image reading is unavailable here. Paste the text instead.';t=(await s('Transcribe all text in this image exactly, preserving line breaks. Output only the text.',{images:[f]})).text}
+ else if(n.endsWith('.docx'))t=(await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value;
+ else if(n.endsWith('.pdf')){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;for(let i=1;i<=d.numPages;i++){const c=await(await d.getPage(i)).getTextContent();t+=c.items.map(x=>x.str).join(' ')+'\n'}}
+ else t=await f.text();
+ ta.value=t.trim();st.textContent=t.trim()?'Loaded '+f.name:'No text found in '+f.name}catch(e){st.textContent='Could not read file: '+(e.message||e)}}
+$('jf').onchange=e=>readFile(e.target.files[0],$('jd'),$('jst'));$('cf').onchange=e=>readFile(e.target.files[0],$('cv'),$('cst'));
+const SW=new Set('a an the and or of to in for with on at by from as is are be been this that these those will can our your you we they their it its have has had not but if than then so such who whom which what when where how all any more most other some into over under about also etc using use work working years year experience ability able strong good well including include required requirements preferred responsible responsibilities role job candidate candidates should must may per via within across both each very own new etc'.split(' '));
+function words(t){return(t.toLowerCase().match(/[a-z][a-z+#.&-]{2,}/g)||[]).map(w=>w.replace(/[.-]+$/,'')).filter(w=>w.length>2&&!SW.has(w))}
+function localScreen(jd,cv){
+ const f={};words(jd).forEach(w=>f[w]=(f[w]||0)+1);kw=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,40);
+ const cs=new Set(words(cv)),hit=kw.filter(([w])=>cs.has(w)),miss=kw.filter(([w])=>!cs.has(w));
+ const W=a=>a.reduce((s,[,n])=>s+n+1,0),kscore=100*W(hit)/W(kw);
+ const chk=[['Email',/@\w+\.\w+/],['Phone',/\+?\d[\d\s-]{7,}/],['Summary / objective',/summary|objective|profile/i],['Experience',/experience|employment/i],['Education',/education|degree|bba|mba|b\.sc|bachelor|master/i],['Skills',/skills|competenc/i]].map(([n,r])=>[n,r.test(cv)]);
+ const sscore=100*chk.filter(c=>c[1]).length/chk.length,total=Math.round(kscore*.8+sscore*.2);
+ const lab=total>=75?'Strong match':total>=55?'Good match - improve a few gaps':total>=35?'Partial match':'Weak match';
+ const chips=(a,c)=>a.map(([w])=>`<span class="chip ${c}">${w}</span>`).join('')||'<span class=mu>None</span>';
+ $('res').innerHTML=`<div class=row><div class=score>${total}<small style="font-size:20px">/100</small></div><div><b>${lab}</b><div class=mu>Keywords ${Math.round(kscore)}% · Structure ${Math.round(sscore)}%</div></div></div><div class=bar><i style="width:${total}%"></i></div>
+ <h2>Matched keywords (${hit.length})</h2>${chips(hit,'ok')}<h2 style="margin-top:12px">Missing from CV (${miss.length})</h2>${chips(miss,'no')}
+ <h2 style="margin-top:12px">Structure check</h2>${chk.map(c=>`<span class="chip ${c[1]?'ok':'no'}">${c[1]?'✓':'✗'} ${c[0]}</span>`).join('')}
+ <p class=mu>Add missing keywords only where they truthfully describe your experience.</p>
+ <div class=row><button class=btn onclick="go(2);tailor(false)">Build tailored resume</button><button class="btn ai" onclick="deep()">🧠 Deep dive</button></div><div id="ai" style="white-space:pre-wrap;margin-top:10px"></div>`;
+ go(1)}
+async function ask(p,el,done){const s=await claude.use('sample');if(!s){el.textContent='Claude is unavailable in this view.';return}el.textContent='Thinking…';try{const r=await s(p,{onText:x=>{el.textContent=x.text}});done&&done(r.text)}catch(e){el.textContent='AI request failed: '+(e.message||e.code||'error')}}
+function deep(){ask(`You are a recruiter. Compare this resume with the job description. Give: 1) fit score /100 with reasons, 2) top 5 strengths, 3) top 5 gaps, 4) concrete honest edits. Be concise.\n\nJOB DESCRIPTION:\n${$('jd').value}\n\nRESUME:\n${$('cv').value}`,$('ai'))}
+function tailorLocal(ai){const cv=$('cv').value.trim();if(!cv){alert('Add a resume on the Input tab first.');return}
+ if(!kw.length){const f={};words($('jd').value).forEach(w=>f[w]=(f[w]||0)+1);kw=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,40)}
+ if(ai){ask(`Rewrite this resume tailored to the job description. Rules: never invent facts, employers, dates or skills; use only what the resume states; reword and reorder to emphasise relevant experience and use the job's keywords where truthful. Output plain text only: line 1 name, line 2-3 contact, then UPPERCASE headings (SUMMARY, EXPERIENCE, EDUCATION, SKILLS...) with one item per line.\n\nJOB:\n${$('jd').value}\n\nRESUME:\n${cv}`,$('rt'),()=>draw());return}
+ const P=parse(cv),jdw=new Set(words($('jd').value));const sk=P.s.find(s=>/skill|competenc/i.test(s.h));
+ if(sk){P.s=[sk,...P.s.filter(s=>s!==sk)]}
+ const sm=P.s.findIndex(s=>/summary|objective|profile/i.test(s.h)),mt=kw.map(k=>k[0]).filter(w=>new Set(words(cv)).has(w)).slice(0,6);
+ if(sm<0&&mt.length)P.s.unshift({h:'Summary',l:['Professional with relevant experience in '+mt.join(', ')+'.']});
+ $('rt').value=[P.n,...P.c,...P.s.flatMap(s=>['',s.h.toUpperCase(),...s.l])].join('\n');draw()}
+function parse(t){const L=t.split(/\r?\n/).map(x=>x.replace(/[*][*]/g,'').trim()),H=/^(professional |career )?(summary|objective|profile|experience|work experience|employment( history)?|education|skills|technical skills|projects|certifications?|training|languages|references|achievements|awards|interests|personal (details|information))\s*:?$/i;
+ const n=L.find(x=>x)||'Your Name',i0=L.indexOf(n)+1,c=[];let i=i0;for(;i<L.length&&!H.test(L[i])&&c.length<4;i++)if(L[i])c.push(L[i]);
+ const s=[];let cur=null;for(;i<L.length;i++){const x=L[i];if(H.test(x)||(x.length<30&&x==x.toUpperCase()&&/[A-Z]{4}/.test(x)&&!/\d/.test(x))){cur={h:x.replace(/:$/,''),l:[]};s.push(cur)}else if(x){if(!cur){cur={h:'Details',l:[]};s.push(cur)}cur.l.push(x)}}return{n,c,s}}
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function draw(){const P=parse($('rt').value||''),on=$('hl').checked,k=new Set(kw.map(x=>x[0]));
+ const hl=t=>esc(t).replace(/[A-Za-z][A-Za-z+#.&-]{2,}/g,w=>on&&k.has(w.toLowerCase().replace(/[.-]+$/,''))?'<b>'+w+'</b>':w);
+ const p=$('paper');p.className=tpl+(on?'':' nob');
+ const hd=`<div class=hd><h1>${esc(P.n)}</h1><div class=ct>${P.c.map(esc).join(' &nbsp;|&nbsp; ')}</div></div>`;
+ p.innerHTML=hd+P.s.map(s=>`<h3>${esc(s.h)}</h3>`+s.l.map(l=>`<p>${/^[-•*·]/.test(l)?'• '+hl(l.replace(/^[-•*·]\s*/,'')):hl(l)}</p>`).join('')).join('')}
+async function save(name,blob){const d=await claude.use('downloads');if(!d){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();return}try{await d.save({filename:name,data:blob})}catch(e){if(e.code!='declined')alert('Download failed: '+(e.message||e.code))}}
+async function pdf(){if(!$('rt').value.trim())return;const b=$('hl').checked;$('hl').checked=false;draw();try{const blob=await html2pdf().from($('paper')).set({margin:8,jsPDF:{unit:'mm',format:'a4'},html2canvas:{scale:2}}).outputPdf('blob');await save('resume.pdf',blob)}finally{$('hl').checked=b;draw()}}
+async function docx(){const P=parse($('rt').value||'');if(!$('rt').value.trim())return;const col={classic:'222222',modern:'2F4FD0',minimal:'555555',exec:'7A1F2B',compact:'0B6E4F'}[tpl],fnt=/classic|exec/.test(tpl)?'Georgia':'Calibri';
+ const x=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ const para=(t,o={})=>`<w:p><w:pPr>${o.c?'<w:jc w:val="center"/>':''}${o.bd?`<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="${col}"/></w:pBdr>`:''}<w:spacing w:before="${o.b||0}" w:after="40"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="${fnt}" w:hAnsi="${fnt}"/>${o.bold?'<w:b/>':''}<w:color w:val="${o.col||'111111'}"/><w:sz w:val="${o.sz||21}"/></w:rPr><w:t xml:space="preserve">${x(t)}</w:t></w:r></w:p>`;
+ let b=para(P.n,{bold:1,sz:44,col,c:tpl=='classic'})+P.c.map(c=>para(c,{sz:19,col:'555555',c:tpl=='classic'})).join('');
+ P.s.forEach(s=>{b+=para(s.h.toUpperCase(),{bold:1,sz:22,col,b:200,bd:tpl!='minimal'});s.l.forEach(l=>b+=para(/^[-•*·]/.test(l)?'• '+l.replace(/^[-•*·]\s*/,''):l))});
+ await lib(ZIP);const z=new JSZip();z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+ z.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+ z.file('word/document.xml','<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+b+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="900" w:right="1000" w:bottom="900" w:left="1000"/></w:sectPr></w:body></w:document>');
+ await save('resume.docx',await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}))}
+const nm=(t,d)=>(d||'Untitled').slice(0,40),now=()=>new Date().toLocaleDateString();
+function saveJD(){const t=$('jd').value.trim();if(!t)return;const n=nm('',t.split('\n')[0].slice(0,40));if(!n)return;const a=store.get('cvs_jd');a.push({n,t,d:now()});store.set('cvs_jd',a)&&($('jst').textContent='Saved.')}
+function saveCV(){const t=$('cv').value.trim();if(!t)return;const n=nm('',t.split('\n')[0].slice(0,40));if(!n)return;const a=store.get('cvs_cv');a.push({n,t,d:now()});store.set('cvs_cv',a)&&($('cst').textContent='Saved.')}
+function saveRes(){const t=$('rt').value.trim();if(!t)return;const n=nm('',t.split('\n')[0].slice(0,30)+' (tailored)');if(!n)return;const a=store.get('cvs_cv');a.push({n,t,d:now(),tpl});store.set('cvs_cv',a)}
+function saveFmt(){const n=$('fn').value.trim()||T[tpl];const a=store.get('cvs_fm');a.push({n,tpl});store.set('cvs_fm',a);lists()}
+function lists(){const mk=(k,el,fn)=>{const a=store.get(k);$(el).innerHTML=a.length?a.map((x,i)=>`<div class=item><span>${esc(x.n)} <span class=mu>${x.d||T[x.tpl]||''}</span></span><span class=row>${fn(x,i)}<button class="btn s" onclick="del('${k}',${i})">✕</button></span></div>`).join(''):'<p class=mu>Nothing saved yet.</p>'};
+ mk('cvs_cv','l_cv',(x,i)=>`<button class="btn s" onclick="use('cv',${i})">Use as CV</button>`);mk('cvs_jd','l_jd',(x,i)=>`<button class="btn s" onclick="use('jd',${i})">Use as JD</button>`);mk('cvs_fm','l_fm',(x,i)=>`<button class="btn s" onclick="useF(${i})">Apply</button>`)}
+function del(k,i){const a=store.get(k);a.splice(i,1);store.set(k,a);lists()}
+function use(w,i){const x=store.get(w=='cv'?'cvs_cv':'cvs_jd')[i];$(w).value=x.t;if(x.tpl){tpl=x.tpl}go(0)}
+function useF(i){tpl=store.get('cvs_fm')[i].tpl;document.querySelector(`input[value=${tpl}]`).checked=true;draw();go(2)}
+$('pf').onchange=e=>readFile(e.target.files[0],$('pt'),$('pst'));
+const FREE=/@(gmail|yahoo|hotmail|outlook|live|icloud|protonmail)\./i;
+let PT='';
+function ln(t,re){const l=t.split('\n').find(x=>re.test(x));return l?l.trim().slice(0,160):'Not mentioned'}
+function chkPost(){const t=($('pt').value+'\n'+$('pu').value).trim();if(t.length<30){alert('Please add the job post text first.');return}PT=$('pt').value;
+ const em=[...new Set(t.match(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g)||[])],ph=[...new Set(t.match(/\+?\d[\d\s-]{8,14}\d/g)||[])].slice(0,4),ur=[...new Set(t.match(/(https?:\/\/|www\.)[^\s)]+/g)||[])].slice(0,4);
+ const R=[[/(registration|processing|security|training|application|joining|medical|visa)\s*(fee|deposit|charge|money)|advance payment|pay\s+(a\s+)?(fee|deposit)|send money|bkash|nagad|rocket|western union/i,35,'Asks for money or fees'],
+ [/guaranteed (job|income|salary)|100%\s*(job\s*)?guarantee|earn\s+(up to\s+)?[\d,]+[^.\n]{0,25}(per day|daily|weekly|per hour)|no (experience|qualification|interview)[^.\n]{0,30}(needed|required)|easy money/i,25,'Unrealistic promises (guaranteed job, easy money, no interview)'],
+ [/whatsapp|telegram|\bimo\b/i,15,'Mentions chat apps (WhatsApp, Telegram, imo) for applying'],
+ [/\b(nid|national id|passport|bank account|card number|otp|pin code|password)\b/i,20,'Asks for sensitive personal or bank details'],
+ [/bit\.ly|tinyurl|t\.ly|goo\.gl|cutt\.ly|rb\.gy/i,15,'Shortened link hides the real destination'],
+ [/urgent(ly)?\b|apply immediately|limited (seats|vacanc)|hurry|last chance|today only/i,8,'Pressure or urgency wording'],
+ [/(abroad|overseas|dubai|saudi|malaysia|qatar|europe|canada)[^.\n]{0,40}(job|visa|work permit|vacanc)/i,10,'Overseas job offer: verify through official recruitment channels']];
+ const red=R.filter(r=>r[0].test(t)).map(r=>[r[1],r[2]]);
+ if(em.some(e=>FREE.test(e)))red.push([10,'Uses a free email address (Gmail, Yahoo...) instead of a company domain']);
+ if(!/\b(ltd|limited|group|bank|inc|corporation|company|co\.|university|organi[sz]ation|foundation|industries|plc|holdings)\b/i.test(t))red.push([10,'No clear company or organisation name']);
+ if(!/deadline|last date|apply (by|before)|closing|expires?/i.test(t))red.push([5,'No application deadline']);
+ const hasDuty=/responsibilit|requirement|qualification|duties|skills/i.test(t);if(!hasDuty)red.push([10,'No clear responsibilities or requirements']);
+ const grn=[];if(em.some(e=>!FREE.test(e)))grn.push([10,'Contact email uses a company-style domain']);
+ if(/deadline|last date|apply (by|before)|closing/i.test(t))grn.push([5,'Application deadline stated']);
+ if(hasDuty)grn.push([10,'Responsibilities / requirements described']);
+ if(/careers|official website|apply online|apply through|www\./i.test(t))grn.push([8,'Points to an official website or online application']);
+ const sc=Math.max(0,Math.min(100,65-red.reduce((s,r)=>s+r[0],0)+grn.reduce((s,r)=>s+r[0],0))),
+ lab=sc>=75?'Looks legitimate (still verify)':sc>=50?'Unclear: verify before applying':'High risk: likely fake or scam';
+ const col=sc>=75?'#2f9e44':sc>=50?'#e8a317':'#e03131',ch=(a,c)=>a.map(x=>`<span class="chip ${c}">${esc(x[1])}</span>`).join('')||'<span class=mu>None found</span>',
+ row=(k,v)=>`<div class=item><b>${k}</b><span style="text-align:right;word-break:break-word">${esc(v)}</span></div>`;
+ $('pr').style.display='block';
+ $('pr').innerHTML=`<div class=row><div class=score style="color:${col}">${sc}<small style="font-size:20px">/100</small></div><div><b>${lab}</b><div class=mu>Trust indicator based on the wording of the post</div></div></div><div class=bar><i style="width:${sc}%;background:${col}"></i></div>
+ <h2>Warning signs (${red.length})</h2>${ch(red,'no')}<h2 style="margin-top:12px">Good signs (${grn.length})</h2>${ch(grn,'ok')}
+ <h2 style="margin-top:12px">Details found in the post</h2>${row('Emails',em.join(', ')||'Not mentioned')}${row('Phone numbers',ph.join(', ')||'Not mentioned')}${row('Links',ur.join(', ')||'Not mentioned')}${row('Deadline',ln(t,/deadline|last date|apply (by|before)|closing/i))}${row('Salary',ln(t,/salary|tk\.?|bdt|৳|\$|usd|negotiable/i))}${row('Experience',ln(t,/\d+\+?\s*(to|-)?\s*\d*\s*years?/i))}
+ <p class=mu>This checks wording only. It cannot confirm that the employer really posted it. Check the company's official website or careers page, and never pay a fee or send ID or bank details to get a job.</p>
+ <div class=row><button class=btn onclick="deepPost()">🕵️ Deep Scan report</button></div><div id="pai" style="white-space:pre-wrap;margin-top:10px"></div>`;
+ $('pr').scrollIntoView({behavior:'smooth'})}
+function deepPost(){ask(`You are a job-scam analyst. Analyse this job post using only its text; you cannot browse or verify live. Reply in plain text with these headings:\nVERDICT: Likely genuine / Uncertain / Likely fake, with the main reasons.\nJOB INFORMATION: title, company, location, job type, salary, deadline, how to apply, experience, education, key responsibilities, key requirements (write 'Not stated' where missing).\nWARNING SIGNS: specific phrases or details that look suspicious.\nHOW TO VERIFY: concrete steps for this post (official site, email domain, official phone, company registration, who to ask).\nKeep it concise.\n\nPOST (found at: ${$('pu').value||'unknown'}):\n${PT}`,$('pai'))}
+function postToJD(){const t=$('pt').value.trim();if(!t){alert('Add the job post first.');return}$('jd').value=t;go(0)}
+const PEND=[];
+async function prep(){await Promise.all(PEND);if(!$('jd').value.trim()&&$('pt').value.trim())$('jd').value=$('pt').value;if(!$('pt').value.trim()&&$('jd').value.trim())$('pt').value=$('jd').value}
+function loadFiles(fl,ta,st){fl=[...fl];if(!fl.length)return;const p=(async()=>{st.textContent='Reading '+fl.map(f=>f.name).join(', ')+'…';const out=[],imgs=[];
+ try{for(const f of fl){const n=f.name.toLowerCase();if(f.type.startsWith('image/')){imgs.push(await shrink(f));continue}let t='';if(n.endsWith('.pdf'))await lib(PDFJ);
+  if(n.endsWith('.docx')){await lib(MAM);t=(await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}
+  else if(n.endsWith('.pdf')){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+   for(let i=1;i<=d.numPages;i++){const c=await(await d.getPage(i)).getTextContent();t+=c.items.map(x=>x.str).join(' ')+'\n'}
+   if(t.trim().length<40){t='';for(let i=1;i<=Math.min(d.numPages,4);i++){const pg=await d.getPage(i),vp=pg.getViewport({scale:1.6}),cn=document.createElement('canvas');cn.width=vp.width;cn.height=vp.height;await pg.render({canvasContext:cn.getContext('2d'),viewport:vp}).promise;const b=await new Promise(r=>cn.toBlob(r,'image/jpeg',.85));imgs.push(new File([b],'page'+i+'.jpg',{type:'image/jpeg'}))}}}
+  else if(/\.(txt|md|csv|rtf)$/.test(n)||f.type.startsWith('text/'))t=await f.text();
+  else throw 'Unsupported file ('+f.name+'). Use PDF, DOCX, TXT or an image.';
+  if(t.trim())out.push(t.trim())}
+  if(imgs.length){const s=await claude.use('sample');if(s){try{const r=await s('This is a screenshot or photo of a document. Transcribe every piece of text you can read, from top to bottom, in reading order, keeping line breaks. If anything blocks the view (red boxes or marks drawn on it, blur, glare, cut-off edges, redaction, hidden parts), ignore that part, skip any text you cannot read with confidence, never guess, and never describe the image. Do not use markdown. After the text, add one final line starting with ISSUES: that briefly lists the problems you found (for example ISSUES: a red box covers part of the Education section; the lower part is blurry), or ISSUES: none.',{images:imgs});out.push(takeNote(r.text,st))}catch(e){await ocrImgs(imgs,out,st,e)}}else{try{await lib(TES)}catch(e){}if(typeof Tesseract==='undefined')throw 'Image reading needs an internet connection or the claude.ai version. Paste the text instead.';st.textContent='Reading image text (OCR, English)…';for(const im of imgs){const o=await Tesseract.recognize(im,'eng');out.push(o.data.text.trim())}}}
+  ta.value=out.join('\n\n');{const oc=st.dataset.ocr,nt=st.dataset.note;delete st.dataset.ocr;delete st.dataset.note;st.textContent=ta.value?(oc?'Loaded with basic OCR, which can contain errors. Edit the text or retry once AI is available: ':'Loaded: ')+fl.map(f=>f.name).join(', '):'No readable text found in the file.';if(nt&&ta.value)st.textContent+=' ⚠ Problem found in the image, so those parts were ignored and only the readable text was used: '+nt}}
+ catch(e){st.textContent='Could not read file: '+(e.message||e)}})();PEND.push(p);return p}
+$('jf').onchange=e=>loadFiles(e.target.files,$('jd'),$('jst'));$('cf').onchange=e=>loadFiles(e.target.files,$('cv'),$('cst'));$('pf').onchange=e=>loadFiles(e.target.files,$('pt'),$('pst'));
+function kwFrom(jd){const f={};words(jd).forEach(w=>f[w]=(f[w]||0)+1);kw=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,40)}
+async function screen0(){await prep();const jd=$('jd').value.trim(),cv=$('cv').value.trim();
+ if(jd.length<30||cv.length<30){alert('The '+[jd.length<30?'job description':'',cv.length<30?'resume':''].filter(Boolean).join(' and ')+' text is empty or too short. Wait until the status under the box says Loaded, or paste the text.\n\nJob description: '+$('jst').textContent+'\nResume: '+$('cst').textContent);return}
+ kwFrom(jd);go(1);$('res').innerHTML='<p class=mu>Claude is comparing the resume with the job description…</p>';
+ const s=await claude.use('sample');if(!s){localScreen(jd,cv);return}
+ try{const r=await s(`You are a strict, evidence-based recruiter and ATS analyst. Compare the RESUME with the JOB DESCRIPTION for an exact match. Count only skills, experience and qualifications explicitly shown in the resume; never assume. Score honestly (0-100). Return ONLY valid JSON, no markdown: {"score":number,"verdict":string,"summary":string,"breakdown":{"skills":number,"experience":number,"education":number,"keywords":number},"matched":[string],"missing":[string],"strengths":[string],"gaps":[string],"tips":[string]}. matched/missing are requirements or keywords from the job description (max 15 each). tips are honest edits that never invent facts.\n\nJOB DESCRIPTION:\n${jd.slice(0,12000)}\n\nRESUME:\n${cv.slice(0,12000)}`);
+  renderAI(JSON.parse(r.text.replace(/^[^{]*|[^}]*$/g,'')))}
+ catch(e){localScreen(jd,cv);$('res').insertAdjacentHTML('afterbegin','<p class=mu>AI unavailable ('+esc(String(e.message||e))+'). This is a keyword-based estimate.</p>')}}
+function renderAI(j){window.LASTM={m:j,k:$('jd').value.trim().length+'|'+$('cv').value.trim().length};const sc=Math.max(0,Math.min(100,Math.round(+j.score||0))),col=sc>=75?'#2f9e44':sc>=50?'#e8a317':'#e03131',e=x=>esc(String(x)),L=a=>(a||[]).map(x=>`<li>${e(x)}</li>`).join('')||'<li class=mu>None</li>',ch=(a,c)=>(a||[]).map(x=>`<span class='chip ${c}'>${e(x)}</span>`).join('')||'<span class=mu>None</span>',b=j.breakdown||{};
+ $('res').innerHTML=`<div class=row><div class=score style='color:${col}'>${sc}<small style='font-size:20px'>/100</small></div><div><b>${e(j.verdict||'')}</b><div class=mu>AI match by Claude</div></div></div><div class=bar><i style='width:${sc}%;background:${col}'></i></div><p>${e(j.summary||'')}</p>
+ ${Object.entries(b).map(([k,v])=>`<div class=mu>${e(k)}: ${e(v)}%</div><div class=bar><i style='width:${Math.max(0,Math.min(100,+v||0))}%'></i></div>`).join('')}
+ <h2>Matched (${(j.matched||[]).length})</h2>${ch(j.matched,'ok')}<h2 style='margin-top:12px'>Missing (${(j.missing||[]).length})</h2>${ch(j.missing,'no')}
+ <h2 style='margin-top:12px'>Strengths</h2><ul>${L(j.strengths)}</ul><h2>Gaps</h2><ul>${L(j.gaps)}</ul><h2>How to improve (honestly)</h2><ul>${L(j.tips)}</ul>
+ <div class=row><button class=btn onclick='go(2);gapFind()'>🧩 Fill the gaps, then build</button><button class='btn s' onclick='go(2);tailor()'>Skip, just build</button></div>`}
+async function tailor(){await prep();const cv=$('cv').value.trim(),jd=$('jd').value.trim();if(!cv||!jd){alert('Add the resume and the job description first (type/paste or choose a file).');return}if(cv.length<400&&!window._sw){window._sw=1;alert('Your resume text is very short ('+cv.length+' characters), so the result will be incomplete. Check the Resume box on the Input tab, or tap Build again to continue anyway.');return}window._sw=0;
+ kwFrom(jd);const s=await claude.use('sample');if(!s){tailorLocal(false);return}const el=$('rt');el.value='Tailoring with Claude…';
+ try{const r=await s(`Rewrite this resume tailored to the job description. Rules: never invent facts, employers, dates, numbers or skills; use only what the resume states; reword and reorder to emphasise the most relevant experience and use the job's keywords where truthful. Output plain text only: line 1 name, lines 2-3 contact, then UPPERCASE headings (SUMMARY, SKILLS, EXPERIENCE, EDUCATION...) with one item per line.\n\nJOB:\n${jd.slice(0,12000)}\n\nRESUME:\n${cv.slice(0,12000)}`,{onText:x=>{el.value=x.text}});el.value=r.text.trim();draw()}
+ catch(err){tailorLocal(false)}}
+async function checkPost(){await prep();if($('pt').value.trim().length<30){alert('Add the job post (type/paste it or choose a file), or fill the job description on the Input tab.');return}chkPost();deepPost()}
+async function ocrImgs(imgs,out,st,err){st.dataset.ocr='1';try{await lib(TES)}catch(e){}if(typeof Tesseract==='undefined')throw err||new Error('Image reading needs an internet connection.');st.textContent='AI unavailable'+(err?' ('+(err.message||err)+')':'')+'. Reading image text with OCR (English)…';for(const im of imgs){const o=await Tesseract.recognize(im,'eng');out.push(o.data.text.trim())}}
+function saveKey(){const v=$('ak').value.trim();if(v&&!/^(sk-ant-|AIza)/.test(v)){$('aks').textContent='Unrecognised key. Use a free Gemini key (starts with AIza, from aistudio.google.com) or an Anthropic key (starts with sk-ant-).';return}try{if(v)localStorage.setItem('cvs_key',v);else localStorage.removeItem('cvs_key');$('aks').textContent=v?'Key saved. AI is now on.':'Key removed.'}catch(e){$('aks').textContent='Could not save the key in this browser.'}}
+if(typeof claude==='undefined'){
+ const gk=()=>window.__gk?window.__gk():'';
+ const b64=f=>new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result.split(',')[1]);x.onerror=j;x.readAsDataURL(f)});
+ const sample=async(p,o={})=>{const c=[];for(const f of o.images||[])c.push({type:'image',source:{type:'base64',media_type:f.type||'image/jpeg',data:await b64(f)}});c.push({type:'text',text:p});
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':gk(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:c}]})});
+  const d=await r.json();if(!r.ok){const e=new Error(r.status===401?'Your API key was rejected. Re-enter it in the Offline box at the top (it starts with sk-ant-), or remove it.':((d.error&&d.error.message)||'API error'));e.code=r.status;throw e}
+  const text=d.content.filter(x=>x.type==='text').map(x=>x.text).join('');if(o.onText)o.onText({text});return{text}};
+ let GM='';
+ const gerr=(r,d)=>{const e=new Error(r.status===429?'Free limit reached. Wait a minute and try again.':r.status===400?'Your Gemini key was not accepted. Re-enter it in the box at the top (it starts with AIza).':r.status===403?'Gemini refused this key (403). Check the key, or finish any verification Google asks for in AI Studio.':((d.error&&d.error.message)||'API error'));e.code=r.status;return e};
+ const gpick=async()=>{if(GM)return GM;const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':gk()}}),d=await r.json();if(!r.ok)throw gerr(r,d);const ms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')&&/flash/i.test(m.name)&&!/image|tts|live|audio|embed|robotics|computer|thinking|exp/i.test(m.name)),b=ms.find(m=>!/lite|preview/i.test(m.name))||ms.find(m=>!/lite/i.test(m.name))||ms[0];if(!b)throw new Error('No Gemini Flash model is available for this key.');GM=b.name.replace('models/','');return GM};
+ const gem=async(p,o={})=>{const parts=[];for(const f of o.images||[])parts.push({inline_data:{mime_type:f.type||'image/jpeg',data:await b64(f)}});parts.push({text:p});const m=await gpick(),r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent',{method:'POST',headers:{'content-type':'application/json','x-goog-api-key':gk()},body:JSON.stringify({contents:[{parts}]})}),d=await r.json();if(!r.ok)throw gerr(r,d);const text=((((d.candidates||[])[0]||{}).content||{}).parts||[]).map(x=>x.text||'').join('');if(!text)throw new Error('Gemini returned no text.');if(o.onText)o.onText({text});return{text}};
+ window.__gem=gem;window.__ant=sample;
+ addEventListener('load',()=>document.querySelector('header').insertAdjacentHTML('beforeend',`<div class=card style='margin-top:8px'><b>Offline copy.</b> <span class=mu>To use AI here, paste a free Gemini API key (starts with AIza, from aistudio.google.com) or an Anthropic key (sk-ant-). It stays only in this browser. Or open the app link inside claude.ai, where no key is needed.</span><div class=row style='margin-top:6px'><input id=ak type=password placeholder='AIza... or sk-ant-...' style='flex:1;min-width:160px'><button class='btn s' onclick='saveKey()'>Save key</button><button class='btn s' onclick="$('ak').value='';saveKey()">Remove key</button></div><div class=mu id=aks>${gk()?'A key is saved.':'No key saved: keyword matching only.'}</div></div>`))}
+const MAP={jd:['jf','jst'],cv:['cf','cst'],pt:['pf','pst']},VK={jd:'job description',cv:'resume',pt:'job post'},VC={};
+function clr(id){const m=MAP[id];$(id).value='';$(m[0]).value='';$(m[1]).textContent='';const b=$(id).closest('.card').querySelector('.vbox');if(b)b.remove();delete VC[id]}
+function useClean(id){if(VC[id]){$(id).value=VC[id];$(MAP[id][1]).textContent='Replaced with the cleaned text.'}}
+function mv(a,b){$(b).value=$(a).value;clr(a);$(MAP[b][1]).textContent='Moved here from the other box.';go(0)}
+async function verify0(id){await Promise.all(PEND);const ta=$(id),t=ta.value.trim();if(t.length<20){alert('Add or load something to verify first.');return}
+ const card=ta.closest('.card');let box=card.querySelector('.vbox');if(!box){box=document.createElement('div');box.className='vbox';box.style.cssText='margin-top:10px';card.append(box)}
+ const s=await claude.use('sample');if(!s){box.textContent='Claude is unavailable here. Open the app link inside claude.ai.';return}
+ box.textContent='🔍 Scanning…';const kind=VK[id];
+ try{const r=await s(`The user put this text in the box labelled "${kind}". It may have been extracted from a photo or PDF by OCR. Return ONLY valid JSON, no markdown: {"type":"job description | resume | job post | other | unclear","fits_box":boolean,"confidence":number,"issues":[string],"key_details":{"label":"value"}}. issues: wrong document type, garbled or OCR errors, cut-off or missing parts, mixed documents, suspicious content. key_details: for a resume give name, email, phone, latest role, education, years of experience; for a job description or post give title, company, location, salary, deadline, how to apply.\n\nTEXT:\n${t.slice(0,12000)}`);
+  const j=JSON.parse(r.text.replace(/^[^{]*|[^}]*$/g,'')),e=x=>esc(String(x)),ok=j.fits_box!==false,tg=/resume|cv/i.test(j.type)?'cv':/job/i.test(j.type)?'jd':'';VC[id]=j.cleaned||'';
+  box.innerHTML=`<div style='border-top:1px solid var(--bd);padding-top:8px'><b style='color:${ok?'#2f9e44':'#e03131'}'>${ok?'✓ Looks like a '+e(kind):'⚠ This looks like: '+e(j.type)}</b> <span class=mu>(${e(j.confidence||'?')}% sure)</span>
+  <h2 style='margin-top:8px'>🩺 What the scan found</h2><ul>${(j.issues||[]).map(x=>`<li>${e(x)}</li>`).join('')||'<li>None found</li>'}</ul>
+  <h2>🔎 Details it picked up</h2>${Object.entries(j.key_details||{}).map(([k,v])=>`<div class=item><b>${e(k)}</b><span style='text-align:right;word-break:break-word'>${e(v)}</span></div>`).join('')||'<span class=mu>None</span>'}
+  <div class=row style='margin-top:8px'>${j.cleaned?`<button class='btn s' onclick="useClean('${id}')">🧹 Use cleaned text</button>`:''}${!ok&&tg&&tg!==id?`<button class='btn s' onclick="mv('${id}','${tg}')">Move to the ${tg=='cv'?'resume':'job description'} box</button>`:''}<button class='btn s' onclick="clr('${id}')">Clear this box</button></div></div>`}
+ catch(err){box.textContent='Verification failed: '+(err.message&&!(err instanceof SyntaxError)?err.message:'could not read the AI answer')+'. Try again.'}}
+function verifyRes(){const t=$('rt').value.trim(),o=$('cv').value.trim();if(!t||!o){alert('You need both the original resume (Input tab) and the tailored resume text.');return}
+ const c=document.querySelector('#p2 .card');let el=$('vr');if(!el){el=document.createElement('div');el.id='vr';el.style.cssText='white-space:pre-wrap;margin-top:8px';c.append(el)}
+ ask(`Compare the TAILORED resume with the ORIGINAL resume. List (1) any facts in the tailored version that the original does not support (employers, job titles, dates, numbers, skills, degrees), and (2) important original facts that were dropped. If nothing is invented, say 'No invented facts found.' Be concise.\n\nORIGINAL:\n${o.slice(0,12000)}\n\nTAILORED:\n${t.slice(0,12000)}`,el)}
+if(window.OFFLINE){
+const PV={gemini:{n:'Google Gemini (free)',link:'aistudio.google.com',hint:'AIza or AQ.',pre:/^[^ ]{20,}$/,free:1},
+groq:{n:'Groq (free)',url:'https://api.groq.com/openai/v1',link:'console.groq.com/keys',hint:'gsk_',pre:/^gsk_/,free:1,vis:/scout|maverick|vision/i,txt:/llama-3[.]3-70b|gpt-oss-120b|llama-4|qwen/i},
+openrouter:{n:'OpenRouter (free models)',url:'https://openrouter.ai/api/v1',link:'openrouter.ai/keys',hint:'sk-or-',pre:/^sk-or-/,free:1,vis:/./,txt:/llama-3[.]3|gpt-oss|qwen|gemma|mistral/i},
+mistral:{n:'Mistral (free)',url:'https://api.mistral.ai/v1',link:'console.mistral.ai',hint:'',pre:/^[^ ]{20,}$/,free:1,model:'mistral-small-latest',vis:1},
+cerebras:{n:'Cerebras (free, text only)',url:'https://api.cerebras.ai/v1',link:'cloud.cerebras.ai',hint:'csk-',pre:/^csk-/,free:1,txt:/llama-3[.]3-70b|gpt-oss-120b|qwen|llama/i},
+openai:{n:'OpenAI ChatGPT (paid)',url:'https://api.openai.com/v1',link:'platform.openai.com/api-keys',hint:'sk-',pre:/^sk-/,model:'gpt-4o-mini',vis:1},
+anthropic:{n:'Anthropic Claude API (paid)',link:'console.anthropic.com',hint:'sk-ant-',pre:/^sk-ant-/}};
+const LS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}return null},
+keys=()=>{try{return JSON.parse(LS('cvs_keys')||'{}')}catch(e){return{}}},prov=()=>LS('cvs_prov')||'gemini',MC={};
+window.__gk=()=>keys()[prov()]||'';
+const b64=f=>new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result.split(',')[1]);x.onerror=j;x.readAsDataURL(f)});
+const fail=(r,d,n)=>{const m=d&&d.error&&(d.error.message||d.error);const e=new Error(r.status===401||r.status===403?n+' rejected the key ('+r.status+'). Check the key in the box at the top.':r.status===429?n+' limit reached. Wait a minute, or add a second free provider key (for example Groq) and the app will switch to it automatically.':r.status===503?n+' is overloaded right now (the app already retried). Wait a minute and try again, or switch provider.':(typeof m==='string'?m:'API error '+r.status));e.code=r.status;return e};
+async function pickM(id,img){const c=PV[id],key=id+(img?'v':'t');if(MC[key])return MC[key];if(img&&!c.vis)throw new Error(c.n+' cannot read images.');
+ const r=await fetch(c.url+'/models',{headers:{authorization:'Bearer '+keys()[id]}}),d=await r.json();if(!r.ok)throw fail(r,d,c.n);
+ let L=d.data||[];if(id==='openrouter')L=L.filter(m=>m.pricing&&+m.pricing.prompt===0&&+m.pricing.completion===0&&(!img||((m.architecture||{}).input_modalities||[]).includes('image')));
+ const ids=L.map(m=>m.id).filter(x=>!/whisper|tts|guard|embed|moderation|orpheus|safeguard/i.test(x)),pr=img?c.vis:c.txt,pick=ids.find(x=>pr.test(x))||(img?'':ids[0]);
+ if(!pick)throw new Error('No suitable model found for '+c.n+'.');return MC[key]=pick}
+async function oai(p,o,id){const c=PV[id],im=o.images||[],model=c.model||await pickM(id,im.length>0);
+ const content=im.length?[...(await Promise.all(im.map(async f=>({type:'image_url',image_url:{url:'data:'+(f.type||'image/jpeg')+';base64,'+await b64(f)}})))),{type:'text',text:p}]:p;
+ const r=await fetch(c.url+'/chat/completions',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+keys()[id]},body:JSON.stringify({model,messages:[{role:'user',content}]})}),d=await r.json();
+ if(!r.ok)throw fail(r,d,c.n);const text=(((d.choices||[])[0]||{}).message||{}).content;if(!text)throw new Error(c.n+' returned no text.');if(o.onText)o.onText({text});return{text}}
+async function gem2(p,o){const parts=[];for(const f of o.images||[])parts.push({inline_data:{mime_type:f.type||'image/jpeg',data:await b64(f)}});parts.push({text:p});
+ const H={'content-type':'application/json','x-goog-api-key':keys().gemini},B='https://generativelanguage.googleapis.com/v1beta/models',cand=[];
+ if(MC.gm)cand.push(MC.gm);if(MC.ml)cand.push(...MC.ml);
+ try{const r=MC.ml?{ok:false}:await fetch(B+'?pageSize=200',{headers:H});if(r.ok){const d=await r.json(),ms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')&&/flash/i.test(m.name)&&!/image|tts|live|audio|embed|robotics|computer|thinking|exp/i.test(m.name)).map(m=>m.name.replace('models/',''));const sk=x=>(/lite/i.test(x)?2:0)+(/preview/i.test(x)?1:0);ms.sort((a,b)=>sk(a)-sk(b));cand.push(...ms.slice(0,2),...ms.filter(x=>/lite/i.test(x)).slice(0,1));MC.ml=[...new Set(cand)]}}catch(e){}
+ cand.push('gemini-flash-latest','gemini-3.7-flash','gemini-3.6-flash');
+ let last;for(const m of [...new Set(cand)]){const r=await fetch(B+'/'+m+':generateContent',{method:'POST',headers:H,body:JSON.stringify({contents:[{parts}]})}),d=await r.json();
+  if(r.ok){const text=((((d.candidates||[])[0]||{}).content||{}).parts||[]).map(x=>x.text||'').join('');if(!text)throw new Error('Gemini returned no text.');MC.gm=m;if(o.onText)o.onText({text});return{text}}
+  last=fail(r,d,'Google Gemini');if(![404,429,500,503].includes(r.status)&&!(r.status===401&&JSON.stringify(d).includes('ACCESS_TOKEN_TYPE_UNSUPPORTED')))throw last}
+ if(last&&last.code===401)last.message='Google refused this key (401). New AQ. keys fail on some projects: create a new key in AI Studio, or pick another provider.';
+ throw last||new Error('No working Gemini model found.')}
+const smp0=async(p,o={})=>{const id=prov();try{return await(id==='gemini'?gem2(p,o):id==='anthropic'?window.__ant(p,o):oai(p,o,id))}catch(e){throw e instanceof TypeError?Object.assign(new Error(PV[id].n+' blocked the browser request, or you are offline. Try another provider.'),{code:'network'}):e}};
+const smp=async(p,o={})=>{for(let i=0;;i++){try{return await smp0(p,o)}catch(e){if([500,502,503,504].includes(e.code)&&i<2){await new Promise(r=>setTimeout(r,2500*(i+1)));continue}throw e}}};
+const runId=async(id,p,o)=>{try{return await(id==='gemini'?gem2(p,o):id==='anthropic'?window.__ant(p,o):oai(p,o,id))}catch(e){throw e instanceof TypeError?Object.assign(new Error(PV[id].n+' blocked the browser request, or you are offline.'),{code:'network'}):e}};
+const CACHE={};
+const smpX=async(p,o={})=>{const ks=keys(),act=prov(),im=o.images||[],ck=act+'|'+p.length+'|'+p.slice(0,120)+p.slice(-120)+'|'+im.map(f=>f.name+f.size).join(',');
+ if(CACHE[ck]){if(o.onText)o.onText({text:CACHE[ck]});return{text:CACHE[ck]}}
+ const order=[act,...['gemini','groq','openrouter','mistral','cerebras','openai'].filter(i=>i!==act&&ks[i]&&(!im.length||PV[i].vis))];let last;
+ for(const id of order){for(let n=0;n<2;n++){try{const r=await runId(id,p,o);if(id!==act)toast('Used '+PV[id].n+' because '+PV[act].n+' was unavailable.');CACHE[ck]=r.text;return r}catch(e){last=e;if([500,502,503,504].includes(e.code)&&n==0){await new Promise(r=>setTimeout(r,2500));continue}break}}
+  if(id===act&&![429,500,502,503,504,'network'].includes(last.code))throw last}
+ throw last};
+window.claude={use:async n=>n==='sample'&&keys()[prov()]?smpX:null};
+window.pvUI=()=>{const id=prov(),c=PV[id];$('pvh').textContent='Get a key at '+c.link+(c.hint?' (starts with '+c.hint+')':'')+'. '+(c.free?'Free tier available.':'Paid account needed.');$('ak').value='';$('ak').placeholder=keys()[id]?'Key saved. Paste a new one to replace it':'Paste your '+c.n+' key';$('aks').textContent=keys()[id]?'A key is saved for this provider.':'No key saved for this provider.'};
+window.setKey=()=>{const id=prov(),v=$('ak').value.trim();if(!v)return;if(!PV[id].pre.test(v)){$('aks').textContent='That does not look like a '+PV[id].n+' key'+(PV[id].hint?' (it starts with '+PV[id].hint+').':'.');return}const k=keys();k[id]=v;LS('cvs_keys',JSON.stringify(k));pvUI();$('aks').textContent='Key saved.'};
+window.delKey=()=>{const k=keys();delete k[prov()];LS('cvs_keys',JSON.stringify(k));pvUI();$('aks').textContent='Key removed.'};
+window.testKey=async()=>{$('aks').textContent='Testing…';try{const s=await claude.use('sample');if(!s)throw new Error('Save a key first.');const r=await s('Reply with the single word OK.');$('aks').textContent='Works: '+r.text.trim().slice(0,40)}catch(e){$('aks').textContent='Failed: '+(e.message||e)}};
+addEventListener('load',()=>{document.querySelectorAll('header .card').forEach(x=>x.remove());
+ document.querySelector('header').insertAdjacentHTML('beforeend',`<div class=card style='margin-top:8px'><b>AI provider</b> <span class=mu>(offline copy: pick a provider and paste its key. Inside claude.ai no key is needed.)</span><select id=pv style='margin-top:6px'>${Object.entries(PV).map(([k,v])=>`<option value=${k}>${v.n}</option>`).join('')}</select><div class=mu id=pvh style='margin:6px 0'></div><div class=row><input id=ak type=password style='flex:1;min-width:160px'><button class='btn s' onclick='setKey()'>Save key</button><button class='btn s' onclick='delKey()'>Remove key</button><button class='btn s' onclick='testKey()'>Test</button></div><div class=mu id=aks></div></div>`);
+ $('pv').value=prov();$('pv').onchange=()=>{LS('cvs_prov',$('pv').value);pvUI()};pvUI()})}
+async function pdfImg(){await lib(H2P);const b=$('hl').checked;$('hl').checked=false;draw();window.scrollTo(0,0);try{const blob=await html2pdf().from($('paper')).set({margin:8,jsPDF:{unit:'mm',format:'a4'},html2canvas:{scale:2,scrollX:0,scrollY:0,backgroundColor:'#ffffff',windowWidth:900}}).outputPdf('blob');await save('resume.pdf',blob)}finally{$('hl').checked=b;draw()}}
+async function pdf(){const t=$('rt').value;if(!t.trim()){alert('Build the resume text first.');return}
+ if(/[^\u0000-\u00ff\u2010-\u203a]/.test(t)||!(await lib(JSP).then(()=>1,()=>0),window.jspdf))return pdfImg();
+ const d=new window.jspdf.jsPDF({unit:'pt',format:'a4'}),P=parse(t),W=595,H=842,M=42,CW=W-2*M,C={classic:[34,34,34],modern:[47,79,208],minimal:[85,85,85],exec:[122,31,43],compact:[11,110,79]}[tpl],F=/classic|exec/.test(tpl)?'times':'helvetica',sz=tpl=='compact'?9.5:10.5,lh=sz*1.35;let y=M;
+ const ck=n=>{if(y+n>H-M){d.addPage();y=M}};
+ if(tpl=='exec'){d.setFillColor(...C);d.rect(0,0,W,92,'F');d.setTextColor(255);d.setFont(F,'bold');d.setFontSize(24);d.text(P.n,M,46);d.setFont(F,'normal');d.setFontSize(9.5);d.text(d.splitTextToSize(P.c.join('  |  '),CW),M,66);y=118}
+ else{const ce=tpl=='classic',ax=ce?W/2:M,o={align:ce?'center':'left'};d.setTextColor(...C);d.setFont(F,'bold');d.setFontSize(22);d.text(P.n,ax,y+16,o);y+=34;d.setFont(F,'normal');d.setFontSize(9.5);d.setTextColor(90);for(const l of d.splitTextToSize(P.c.join('  |  '),CW)){d.text(l,ax,y,o);y+=13}y+=6}
+ P.s.forEach(s=>{ck(40);y+=8;d.setFont(F,'bold');d.setFontSize(sz+.5);const h=s.h.toUpperCase();
+  if(tpl=='compact'){d.setFillColor(230,244,239);d.rect(M,y-10,CW,15,'F');d.setTextColor(...C);d.text(h,M+4,y+1)}
+  else if(tpl=='modern'){d.setFillColor(...C);d.rect(M,y-10,3,14,'F');d.setTextColor(...C);d.text(h,M+9,y+1)}
+  else{d.setTextColor(...C);d.text(h,M,y+1);if(tpl!='minimal'){d.setDrawColor(...C);d.setLineWidth(1);d.line(M,y+5,M+CW,y+5)}}
+  y+=18;d.setFont(F,'normal');d.setFontSize(sz);d.setTextColor(20);
+  s.l.forEach(l=>{const b=/^[-•*·]/.test(l);if(b)l=l.replace(/^[-•*·]\s*/,'');d.splitTextToSize(l,CW-(b?12:0)).forEach((r,i)=>{ck(lh);if(b&&i==0)d.text('•',M+2,y);d.text(r,M+(b?12:0),y);y+=lh})})});
+ await save('resume.pdf',d.output('blob'))}
+async function shrink(f){try{const u=URL.createObjectURL(f),im=await new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=u});const k=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.8));return b&&b.size<f.size?new File([b],f.name.replace(/[.][^.]+$/,'')+'.jpg',{type:'image/jpeg'}):f}catch(e){return f}}
+window.wrapTes=()=>{if(!window.Tesseract||Tesseract.__w)return;Tesseract.__w=1;const rec=Tesseract.recognize;Tesseract.recognize=(im,l,o)=>rec.call(Tesseract,im,l,{...(o||{}),logger:m=>{['jst','cst','pst'].forEach(i=>{const e=$(i);if(e&&/^(Reading|AI unavailable|OCR)/.test(e.textContent))e.textContent='OCR '+m.status+' '+Math.round((m.progress||0)*100)+'%'})}})}
+function cleanTx(t){return String(t).replace(/^```[a-z]*\s*|```\s*$/gm,'').replace(/[*][*]/g,'').replace(/^#+\s*/gm,'').replace(/^\s*[*]\s+/gm,'• ').trim()}
+function takeNote(t,st){t=cleanTx(t);const m=t.match(/^[ \t]*ISSUES:[ \t]*(.*)$/im);if(m){t=t.replace(m[0],'').trim();const n=m[1].trim();if(n&&!/^none[.]?$/i.test(n))st.dataset.note=n}return t}
+const MAM='https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js',PDFJ='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',ZIP='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',TES='https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js',JSP='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',H2P='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',LIBS={};
+const lib=u=>LIBS[u]||(LIBS[u]=new Promise((r,j)=>{const s=document.createElement('script');s.src=u;s.onload=()=>{if(u===TES&&window.wrapTes)wrapTes();r()};s.onerror=()=>{delete LIBS[u];j(new Error('Could not load a helper library. Check your connection.'))};document.head.append(s)}));
+function toast(m){let e=$('toast');if(!e){e=document.createElement('div');e.id='toast';e.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:#1d2433;color:#fff;padding:12px 14px;border-radius:10px;z-index:99;white-space:pre-wrap;box-shadow:0 4px 18px #0006;font-size:14px';e.onclick=()=>{e.style.display='none'};document.body.append(e)}e.textContent=String(m)+'\n\n(tap to dismiss)';e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>{e.style.display='none'},9000)}
+window.alert=toast;
+(()=>{const ids=['jd','cv','pt','rt'],last={};try{ids.forEach(i=>{const v=localStorage.getItem('cvs_draft_'+i);if(v&&!$(i).value)$(i).value=v;last[i]=$(i).value});if($('rt').value)draw()}catch(e){}
+setInterval(()=>{try{ids.forEach(i=>{const v=$(i).value;if(v!==last[i]){last[i]=v;if(v)localStorage.setItem('cvs_draft_'+i,v);else localStorage.removeItem('cvs_draft_'+i)}})}catch(e){}},2500)})();
+const GAP={items:[],ans:{},before:null};
+function gapDraw(){const b=$('gaps');b.innerHTML='';GAP.items.forEach((g,i)=>{const d=document.createElement('div');d.style.cssText='border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px';
+ d.innerHTML=`<b></b><textarea style='min-height:70px;margin-top:6px'></textarea><div class=row><button class='btn s'>Yes, this is true</button><button class='btn s'>No, skip</button></div>`;
+ d.querySelector('b').textContent=g.gap;const t=d.querySelector('textarea');t.value=g.draft;t.oninput=()=>{g.draft=t.value};
+ const [y,n]=d.querySelectorAll('button'),set=v=>{GAP.ans[i]=v;y.style.cssText=v=='y'?'background:#2f9e44;color:#fff;border-color:#2f9e44':'';n.style.cssText=v=='n'?'background:#e03131;color:#fff;border-color:#e03131':''};y.onclick=()=>set('y');n.onclick=()=>set('n');b.append(d)})}
+function gapClear(){GAP.items=[];GAP.ans={};GAP.before=null;$('gaps').innerHTML='';$('gst').textContent='';$('cmp').innerHTML=''}
+async function gapFind(){if(window._gf)return;await prep();const jd=$('jd').value.trim(),cv=$('cv').value.trim();if(jd.length<30||cv.length<30){alert('Add the job description and your resume on the Input tab first.');return}
+ const s=await claude.use('sample');if(!s){$('gst').textContent='AI is unavailable here. Open the claude.ai link, or add a provider key.';return}
+ window._gf=1;$('bgap').disabled=true;$('gst').textContent='Finding gaps and drafting lines…';
+ try{const L=window.LASTM,fresh=!!(L&&L.k===jd.length+'|'+cv.length),miss=fresh?(L.m.missing||[]):[];
+  const r=await s(`You are an honest recruiter. ${fresh?'These job requirements are missing from the CV: '+JSON.stringify(miss)+'. ':'First work out which job requirements are NOT evidenced in the CV, and the CV match score (0-100). '}For each missing requirement, draft ONE resume bullet the candidate could add IF it is true for them. Start with an action verb and keep it consistent with the candidate's real role in the CV. Never invent numbers, tools, employers or dates: use [X] for any detail not in the CV. Return ONLY valid JSON, no markdown: {"score":number,"missing":[string],"drafts":[{"gap":string,"draft":string}]}. At most 10 gaps, most important first.\n\nJOB DESCRIPTION:\n${jd.slice(0,10000)}\n\nCV:\n${cv.slice(0,10000)}`);
+  const j=JSON.parse(r.text.replace(/^[^{]*|[^}]*$/g,''));GAP.before={score:Math.round(fresh?+L.m.score||0:+j.score||0),missing:fresh?miss.length:(j.missing||[]).length};
+  GAP.items=(j.drafts||[]).slice(0,10);GAP.ans={};gapDraw();$('gst').textContent=GAP.items.length?'Review each line: Yes if true, No to skip. Then tap Build below.':'No gaps found. Your CV already covers what the job asks for.'}
+ catch(e){$('gst').textContent='Could not find gaps: '+(e.message||e)}
+ window._gf=0;$('bgap').disabled=false}
+async function tailor(){if(window._bt)return;await prep();const cv=$('cv').value.trim(),jd=$('jd').value.trim();if(!cv||!jd){alert('Add the resume and the job description first (type/paste or choose a file).');return}
+ if(cv.length<400&&!window._sw){window._sw=1;alert('Your resume text is very short ('+cv.length+' characters), so the result will be incomplete. Check the Resume box on the Input tab, or tap Build again to continue anyway.');return}window._sw=0;
+ const adds=GAP.items.filter((g,i)=>GAP.ans[i]==='y'&&g.draft.trim()).map(g=>'- '+g.draft.trim());
+ if(GAP.items.length&&!adds.length&&!window._sg){window._sg=1;alert('You have not confirmed any gap lines, so the resume will only be reworded. Tap Build again to continue, or tap Yes on the lines that are true for you.');return}window._sg=0;
+ kwFrom(jd);const s=await claude.use('sample');if(!s){tailorLocal(false);return}window._bt=1;const el=$('rt');el.value='Tailoring with AI…';$('cmp').innerHTML='';
+ try{const r=await s(`Write a tailored resume. Use ONLY facts from the RESUME and the USER-CONFIRMED ADDITIONS. Never invent employers, dates, numbers, tools or skills. If an addition still contains [X], drop that detail and keep the rest of the sentence. Reword and reorder to emphasise the most relevant experience and use the job's keywords where the facts support them. Output plain text only: line 1 name, lines 2-3 contact, then UPPERCASE headings (SUMMARY, SKILLS, EXPERIENCE, EDUCATION...) with one item per line; use - for bullets and no markdown.\n\nJOB:\n${jd.slice(0,10000)}\n\nRESUME:\n${cv.slice(0,10000)}\n\nUSER-CONFIRMED ADDITIONS:\n${adds.join('\n')||'(none)'}`,{onText:x=>{el.value=x.text}});el.value=cleanTx(r.text);draw()}
+ catch(err){window._bt=0;tailorLocal(false);return}
+ window._bt=0;const bf=GAP.before||(window.LASTM&&{score:Math.round(+LASTM.m.score||0),missing:(LASTM.m.missing||[]).length});$('cmp').innerHTML='<p class=mu>Re-checking the new resume…</p>';
+ try{const a=await s(`Score how well this RESUME matches the JOB DESCRIPTION using only evidence in the resume (0-100). Return ONLY valid JSON, no markdown: {"score":number,"missing":[string]}.\n\nJOB DESCRIPTION:\n${jd.slice(0,10000)}\n\nRESUME:\n${el.value.slice(0,10000)}`);
+  const j=JSON.parse(a.text.replace(/^[^{]*|[^}]*$/g,'')),m=j.missing||[],bx=`flex:1;min-width:120px;text-align:center;border:1px solid var(--bd);border-radius:10px;padding:8px`;
+  $('cmp').innerHTML=`<div class=row><div style='${bx}'>Score<br><b style='font-size:20px'>${bf?bf.score+' → ':''}${Math.round(+j.score||0)}</b></div><div style='${bx}'>Missing<br><b style='font-size:20px'>${bf?bf.missing+' → ':''}${m.length}</b></div></div><h2 style='margin-top:10px'>Still missing</h2>${m.map(x=>`<span class='chip no'>${esc(String(x))}</span>`).join('')||'<span class=mu>None</span>'}<p class=mu>Still-missing items are things the CV does not show. Add them only if they are true.</p>`}
+ catch(e){$('cmp').innerHTML=''}}
+async function cleanBox(id){await Promise.all(PEND);if(window._cb)return;const ta=$(id),t=ta.value.trim();if(t.length<20){alert('Add or load something first.');return}const s=await claude.use('sample');if(!s){alert('AI is unavailable here. Open the claude.ai link or add a provider key.');return}
+ window._cb=1;const st=$(MAP[id][1]);st.textContent='🧹 Cleaning…';
+ try{const r=await s(`Fix only obvious OCR mistakes, typos and broken line breaks in this ${VK[id]} text. Never add, remove, reorder or invent content; leave anything unreadable as it is. No markdown. Output only the corrected text.\n\n${t.slice(0,12000)}`);ta.value=cleanTx(r.text);st.textContent='Cleaned. Please review the text.'}
+ catch(e){st.textContent='Could not clean: '+(e.message||e)}window._cb=0}
+async function screen(){if(window._sc)return;window._sc=1;try{await screen0()}finally{window._sc=0}}
+async function verify(id){window._vf=window._vf||{};if(window._vf[id])return;window._vf[id]=1;try{await verify0(id)}finally{window._vf[id]=0}}
+let NE=null;
+function noteSave(){const t=$('nt').value.trim(),b=$('nb').value.trim();if(!t&&!b){alert('Write something first.');return}const a=store.get('cvs_notes'),n=NE&&a.find(x=>x.c===NE),now=Date.now();if(n)Object.assign(n,{t,b,u:now});else a.unshift({t,b,c:now,u:now,p:0});if(store.set('cvs_notes',a)){noteCancel();notesDraw()}}
+function noteCancel(){NE=null;$('nt').value='';$('nb').value='';$('ncl').style.display='none';$('nsv').textContent='Save note'}
+function noteEdit(id){const n=store.get('cvs_notes').find(x=>x.c===id);if(!n)return;NE=id;$('nt').value=n.t;$('nb').value=n.b;$('ncl').style.display='';$('nsv').textContent='Update note';$('nt').scrollIntoView({behavior:'smooth'})}
+function notePin(id){const a=store.get('cvs_notes'),n=a.find(x=>x.c===id);if(n){n.p=n.p?0:1;store.set('cvs_notes',a);notesDraw()}}
+function noteCopy(id){const n=store.get('cvs_notes').find(x=>x.c===id);if(!n)return;try{navigator.clipboard.writeText((n.t?n.t+'\n\n':'')+n.b).then(()=>toast('Note copied.'),()=>toast('Could not copy. Select the text and copy it manually.'))}catch(e){toast('Could not copy. Select the text and copy it manually.')}}
+function noteDel(id){if(window._nd!==id){window._nd=id;notesDraw();setTimeout(()=>{if(window._nd===id){window._nd=null;notesDraw()}},3000);return}window._nd=null;store.set('cvs_notes',store.get('cvs_notes').filter(x=>x.c!==id));if(NE===id)noteCancel();notesDraw()}
+function notesDraw(){const q=($('ns').value||'').toLowerCase(),a=store.get('cvs_notes').filter(n=>((n.t||'')+' '+(n.b||'')).toLowerCase().includes(q)).sort((x,y)=>(y.p-x.p)||(y.u-x.u));
+ $('nl').innerHTML=a.length?a.map(n=>`<div style='border-top:1px solid var(--bd);padding:10px 0;margin-top:10px'><div class=row style='justify-content:space-between'><b>${n.p?'📌 ':''}${esc(n.t||'Untitled note')}</b><span class=mu>${new Date(n.u).toLocaleDateString()}</span></div><div style='white-space:pre-wrap;margin:4px 0 6px;word-break:break-word'>${esc(n.b||'')}</div><div class=row><button class='btn s' onclick='notePin(${n.c})'>${n.p?'Unpin':'📌 Pin'}</button><button class='btn s' onclick='noteEdit(${n.c})'>Edit</button><button class='btn s' onclick='noteCopy(${n.c})'>Copy</button><button class='btn s' onclick='noteDel(${n.c})'>${window._nd===n.c?'Tap again to delete':'Delete'}</button></div></div>`).join(''):'<p class=mu>'+(q?'No notes match your search.':'No notes yet. Write one above.')+'</p>'}
+notesDraw();
+</script></body></html>
