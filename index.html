@@ -14,6 +14,10 @@ Done  Phase 8: Community scam flags (hashed, anonymous, counts only; needs the o
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CV Screener</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f5f6fa" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0e1117" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="AI Screener">
+
 <script>
 /* Audit Priority 1 hardening: request timeout, safer JSON extractor, prompt guard, request options */
 const TOMSG='The AI did not answer in time. Tap the button again to retry, or switch provider in Saved & Settings.',NOX={};
@@ -298,6 +302,7 @@ if(window.ResizeObserver){const ro=new ResizeObserver(()=>navPlace(true));docume
 addEventListener('resize',()=>{navPlace(true);navReveal()});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>navPlace(true));
 $('nav').addEventListener('keydown',e=>{const n=NAVL.length,q=NAVPOS(CURP);let i=null;if(e.key==='ArrowRight')i=NAVO[(q+1)%n];else if(e.key==='ArrowLeft')i=NAVO[(q-1+n)%n];else if(e.key==='Home')i=NAVO[0];else if(e.key==='End')i=NAVO[n-1];if(i!==null){e.preventDefault();go(i);$('n'+i).focus()}});
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 /* Swipe left or right anywhere on the page to go to the next or previous tab */
 (function(){let sx=0,sy=0,st=0,ok=false;
  const skip=t=>{if(!t||!t.closest)return true;if(t.closest('nav,header,#jfm,#sqlbox,#toast,input,textarea,select,iframe,[contenteditable],[role=slider]'))return true;for(let e=t;e&&e!==document.body;e=e.parentElement){const o=getComputedStyle(e).overflowX;if((o==='auto'||o==='scroll')&&e.scrollWidth>e.clientWidth+2)return true}return false};
